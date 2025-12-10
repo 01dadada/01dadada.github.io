@@ -1,0 +1,68 @@
+name: Deploy to GitHub Pages
+
+on:
+  # 当推送到 main 或 master 分支时触发
+  push:
+    branches:
+      - main
+      - master
+  # 允许手动触发
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Determine base path
+        id: base_path
+        run: |
+          # 获取仓库名称
+          REPO_NAME="${{ github.event.repository.name }}"
+          # 获取 GitHub 用户名
+          GITHUB_USERNAME="${{ github.repository_owner }}"
+
+          # 如果仓库名是 username.github.io，则使用根路径
+          if [ "$REPO_NAME" = "${GITHUB_USERNAME}.github.io" ]; then
+            BASE_PATH="/"
+          else
+            BASE_PATH="/${REPO_NAME}/"
+          fi
+
+          echo "base_path=${BASE_PATH}" >> $GITHUB_OUTPUT
+          echo "Repository: $REPO_NAME"
+          echo "Base path: ${BASE_PATH}"
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_BASE_PATH: ${{ steps.base_path.outputs.base_path }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Setup Git Remote with Token
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+
+      - name: Deploy to GitHub Pages
+        run: npm run deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
