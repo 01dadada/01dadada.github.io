@@ -7,5 +7,5 @@ pnp.js
 # production
 /build
 # misc
-/dist/
+# /dist/
 /.vscode/
