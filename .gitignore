@@ -9,3 +9,5 @@ pnp.js
 # misc
 /dist/*
 /.vscode/
+/dist/
+dist/
