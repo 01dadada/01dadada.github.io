@@ -3,7 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "type": "module",
-    "homepage": "https://01dadada.github.io/",
+    "homepage": "https://01dadada.github.io",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
