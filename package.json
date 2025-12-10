@@ -9,11 +9,11 @@
         "preview": "vite preview",
         "lint": "tsc --noEmit",
         "predeploy": "npm run build",
-        "deploy": "gh-pages -d dist"
+        "deploy": "gh-pages -d dist",
+        "check:gh-pages": "node check-github-pages.js"
     },
     "dependencies": {
         "clsx": "^2.1.1",
-        "gh-pages": "^6.3.0",
         "i18next": "^25.7.2",
         "lucide-react": "^0.469.0",
         "react": "^18.3.1",
@@ -30,10 +30,12 @@
         "@types/react-dom": "^18.3.1",
         "@vitejs/plugin-react": "^4.3.4",
         "autoprefixer": "^10.4.22",
+        "gh-pages": "^6.3.0",
         "postcss": "^8.5.6",
         "postcss-import": "^16.1.1",
         "tailwindcss": "^4.1.17",
         "typescript": "^5.9.3",
         "vite": "^7.2.7"
-    }
+    },
+    "homepage": "[http://](http://){01dadada}.github.io/"
 }
