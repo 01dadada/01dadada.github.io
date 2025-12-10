@@ -1,0 +1,170 @@
+@import '../theme.css';
+
+@layer components {
+    .home-page {
+        @apply mx-auto flex flex-col gap-12 px-4 md:px-6 lg:px-8 py-8 md:py-12;
+    }
+
+    .home-hero {
+        @apply relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-8 md:p-12 lg:p-16;
+        box-shadow:
+            0 8px 32px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1),
+            0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    .home-hero::before {
+        content: '';
+        @apply absolute inset-0 -z-10 rounded-3xl;
+        background: linear-gradient(135deg, rgba(13, 141, 237, 0.1) 0%, transparent 50%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .home-hero:hover::before {
+        opacity: 1;
+    }
+
+    .home-hero::after {
+        content: '';
+        @apply absolute inset-0 bg-gradient-to-br from-brand-500/5 via-transparent to-cyan-500/5 pointer-events-none;
+    }
+
+    .home-hero-layout {
+        @apply relative z-10 flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-12;
+    }
+
+    .home-hero-info {
+        @apply flex-1 space-y-6;
+    }
+
+    .home-hero-badge {
+        @apply inline-block rounded-full bg-gradient-to-r from-brand-500/20 to-brand-600/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-brand-200 border border-brand-500/30;
+    }
+
+    .home-hero-title {
+        @apply text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-white tracking-tight;
+        position: relative;
+        z-index: 1;
+        transform: translateZ(0);
+        backface-visibility: hidden;
+        background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #cbd5e1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .home-hero-desc {
+        @apply text-slate-300 text-lg md:text-xl leading-relaxed max-w-2xl;
+    }
+
+    .home-hero-actions {
+        @apply flex flex-wrap gap-4;
+    }
+
+    .home-hero-cta {
+        @apply inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-500 to-brand-600 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-brand-500/40 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-brand-500/50 hover:from-brand-400 hover:to-brand-500;
+    }
+
+    .home-hero-cta::before {
+        content: '';
+        @apply absolute inset-0 rounded-full bg-gradient-to-r from-white/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100;
+    }
+
+    .home-hero-secondary {
+        @apply inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-brand-400/50 hover:bg-white/10 hover:text-brand-100;
+    }
+
+    .home-hero-stats {
+        @apply grid w-full max-w-md grid-cols-2 gap-4 rounded-2xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5 p-6 backdrop-blur-xl shadow-xl;
+    }
+
+    .home-hero-stat-card {
+        @apply rounded-xl border border-white/10 bg-gradient-to-br from-white/10 to-transparent p-4 transition-all duration-200 hover:border-brand-400/30 hover:bg-white/15 hover:scale-105;
+    }
+
+    .home-hero-stat-label {
+        @apply text-xs font-medium text-slate-400 uppercase tracking-wide mb-1;
+    }
+
+    .home-hero-stat-value {
+        @apply text-xl font-bold text-white;
+    }
+
+    .home-highlight {
+        @apply relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] backdrop-blur-xl p-8 md:p-12;
+        box-shadow:
+            0 8px 32px rgba(0, 0, 0, 0.3),
+            inset 0 1px 0 rgba(255, 255, 255, 0.1),
+            0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    .home-highlight::before {
+        content: '';
+        @apply absolute inset-0 -z-10 rounded-3xl;
+        background: linear-gradient(135deg, rgba(13, 141, 237, 0.1) 0%, transparent 50%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .home-highlight:hover::before {
+        opacity: 1;
+    }
+
+    .home-highlight-blob-primary {
+        @apply pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-brand-500/20 blur-3xl animate-pulse;
+    }
+
+    .home-highlight-blob-secondary {
+        @apply pointer-events-none absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-cyan-400/15 blur-3xl animate-pulse;
+        animation-delay: 1s;
+    }
+
+    .home-highlight-grid {
+        @apply relative z-10 grid lg:grid-cols-2 gap-8 lg:gap-12;
+    }
+
+    .home-highlight-copy {
+        @apply space-y-6;
+    }
+
+    .home-highlight-subtitle {
+        @apply inline-block text-xs font-bold uppercase tracking-[0.2em] text-brand-300 mb-2;
+    }
+
+    .home-highlight-text {
+        @apply max-w-xl text-lg md:text-xl text-slate-200 leading-relaxed;
+    }
+
+    .home-highlight-links {
+        @apply mt-5 flex flex-wrap gap-4;
+    }
+
+    .home-link {
+        @apply inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1 text-lg font-normal text-brand-100 backdrop-blur-sm transition-all duration-200 hover:border-brand-300/50 hover:bg-white/20 hover:scale-105 hover:text-white m-2;
+    }
+
+    .home-link svg {
+        @apply transition-transform group-hover:scale-110;
+    }
+
+    .home-bibtex-card {
+        @apply relative rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/90 to-slate-950/90 p-6 shadow-2xl backdrop-blur-xl;
+    }
+
+    .home-bibtex-header {
+        @apply flex items-center justify-between mb-4;
+    }
+
+    .home-bibtex-label {
+        @apply text-sm font-semibold text-slate-300 uppercase tracking-wide;
+    }
+
+    .home-copy-btn {
+        @apply rounded-full border border-white/15 bg-white/10 px-4 py-1.5 text-xs font-semibold text-white transition-all duration-200 hover:border-brand-300/50 hover:bg-brand-500/20 hover:text-brand-100 hover:scale-105;
+    }
+
+    .home-bibtex-pre {
+        @apply mt-4 overflow-x-auto rounded-xl bg-black/60 p-5 text-xs text-slate-200 font-mono leading-relaxed border border-white/5;
+    }
+}

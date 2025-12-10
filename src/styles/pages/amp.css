@@ -1,0 +1,95 @@
+@import '../theme.css';
+
+@layer components {
+    .amp-page {
+        @apply mx-auto flex flex-col px-4 md:px-6 lg:px-8 py-8 md:py-12;
+    }
+
+    .amp-form {
+        @apply flex flex-col gap-8;
+    }
+
+    .amp-controls {
+        @apply space-y-6 w-full;
+    }
+
+    .amp-options-grid {
+        @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+    }
+
+    .amp-action-row {
+        @apply flex flex-wrap gap-3 pt-2 w-full;
+    }
+
+    .amp-results-wrapper {
+        @apply w-full;
+    }
+
+    .amp-input {
+        @apply w-full rounded-xl border border-white/10 bg-gradient-to-br from-slate-900/90 to-slate-950/90 px-4 py-2.5 text-sm text-slate-100 outline-none transition-all duration-200 focus:border-brand-400/50 focus:ring-2 focus:ring-brand-500/20 focus:bg-slate-900/95 placeholder:text-slate-500;
+    }
+
+    .amp-target-title {
+        @apply text-sm font-semibold text-slate-200 mb-3;
+    }
+
+    .amp-target-list {
+        @apply mt-2 flex flex-wrap gap-2;
+    }
+
+    .amp-results {
+        @apply rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/80 to-slate-950/80 p-6 shadow-xl backdrop-blur-xl w-full;
+    }
+
+    .amp-results-header {
+        @apply flex items-center justify-between mb-4 pb-4 border-b border-white/5;
+    }
+
+    .amp-results-count {
+        @apply rounded-full bg-brand-500/20 px-3 py-1 text-xs font-semibold text-brand-200 border border-brand-500/30;
+    }
+
+    .amp-table-container {
+        @apply h-[400px] min-h-[400px] md:h-[500px] md:min-h-[500px] overflow-hidden rounded-xl border border-white/10 bg-slate-950/60 backdrop-blur-sm;
+    }
+
+    .amp-table-scroll {
+        @apply h-full overflow-auto w-full;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    }
+
+    .amp-table-scroll::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    .amp-table-scroll::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .amp-table-scroll::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+    }
+
+    .amp-table-scroll::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .amp-table-scroll table {
+        @apply min-w-full;
+    }
+
+    .amp-seq-cell {
+        @apply max-w-[240px] truncate text-slate-300 font-mono text-xs;
+    }
+
+    .amp-strength-cell {
+        @apply font-semibold text-brand-200;
+    }
+
+    .amp-table-empty {
+        @apply px-4 py-16 text-center text-slate-500 text-sm;
+    }
+}

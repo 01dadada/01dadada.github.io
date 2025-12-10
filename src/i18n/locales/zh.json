@@ -1,0 +1,99 @@
+{
+    "nav": {
+        "home": "主页",
+        "mic": "MIC 预测",
+        "amp": "AMP 生成",
+        "downloads": "文件下载",
+        "contact": "联系"
+    },
+    "home": {
+        "badge": "AMP-MIC Predictor",
+        "title": "抗菌肽 MIC 预测",
+        "desc": "这是一个无后端的系统，我们不会保存您提交的任何信息",
+        "cta": "立即预测",
+        "secondary": "生成 AMP",
+        "stats": {
+            "sequenceSupport": "序列支持",
+            "sequenceValue": "FASTA / 文本",
+            "batchLimit": "批量上限",
+            "batchValue": "{{count}} 条",
+            "fileLimit": "文件限制",
+            "fileValue": "1 MB",
+            "targetSpecies": "目标菌种",
+            "targetValue": "多选"
+        },
+        "highlight": {
+            "subtitle": "Research Preview",
+            "text": "序列上传、批量预测与生成。所有的推理工作都在您的电脑上完成，我们不会保存任何信息"
+        },
+        "bibtex": {
+            "label": "BibTeX",
+            "copy": "复制",
+            "copied": "已复制"
+        }
+    },
+    "mic": {
+        "title": "MIC 预测",
+        "description": "上传或粘贴 FASTA，选择目标菌，多序列批量预测并导出。",
+        "inputLabel": "输入 FASTA 序列",
+        "inputNote": "支持最多",
+        "uploadLabel": "上传 FASTA 文件 (≤ 1 MB)",
+        "targetTitle": "目标菌（多选）",
+        "propertyTitle": "理化性质（多选）",
+        "submit": "生成预测",
+        "submitting": "预测中...",
+        "clear": "清空",
+        "export": "导出 CSV",
+        "results": "预测结果",
+        "resultsCount": "条",
+        "empty": "暂无结果，上传或粘贴 FASTA 后生成",
+        "sequenceLength": "当前输入长度：",
+        "characters": "字符",
+        "fileTooLarge": "文件过大，限制 1 MB",
+        "invalidFasta": "请粘贴有效的 FASTA 序列",
+        "tooManySeqs": "序列数量超出限制（最多 {{count}} 条）",
+        "sequence": "序列"
+    },
+    "amp": {
+        "title": "AMP 生成",
+        "description": "指定生成数量与目标菌，返回序列并展示各菌种预测强度。",
+        "countLabel": "生成数量",
+        "targetTitle": "目标菌（多选）",
+        "propertyTitle": "理化性质（多选）",
+        "submit": "生成序列",
+        "submitting": "生成中...",
+        "clear": "清空",
+        "export": "导出 CSV",
+        "results": "生成结果",
+        "resultsCount": "条",
+        "empty": "暂无结果，设置参数后生成序列",
+        "strength": "强度"
+    },
+    "downloads": {
+        "title": "文件下载",
+        "download": "下载",
+        "items": {
+            "weights_v1": {
+                "title": "模型权重 v1.0",
+                "description": "用于 MIC 预测的模型参数。"
+            }
+        }
+    },
+    "species": {
+        "大肠杆菌": "大肠杆菌",
+        "金黄色葡萄球菌": "金黄色葡萄球菌",
+        "肺炎克雷伯菌": "肺炎克雷伯菌",
+        "铜绿假单胞菌": "铜绿假单胞菌"
+    },
+    "properties": {
+        "分子量": "分子量",
+        "等电点": "等电点",
+        "疏水性": "疏水性",
+        "净电荷": "净电荷"
+    },
+    "contact": {
+        "title": "联系",
+        "description": "有问题请联系我们。",
+        "emailLabel": "作者邮箱："
+    }
+}

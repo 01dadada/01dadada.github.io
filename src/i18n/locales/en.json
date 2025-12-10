@@ -1,0 +1,99 @@
+{
+    "nav": {
+        "home": "Home",
+        "mic": "MIC Prediction",
+        "amp": "AMP Generation",
+        "downloads": "Downloads",
+        "contact": "Contact"
+    },
+    "home": {
+        "badge": "AMP-MIC Predictor",
+        "title": "Antimicrobial Peptide MIC Prediction",
+        "desc": "This is a backend-free system. We do not save any information you submit",
+        "cta": "Predict Now",
+        "secondary": "Generate AMP",
+        "stats": {
+            "sequenceSupport": "Sequence Support",
+            "sequenceValue": "FASTA / Text",
+            "batchLimit": "Batch Limit",
+            "batchValue": "{{count}} items",
+            "fileLimit": "File Limit",
+            "fileValue": "1 MB",
+            "targetSpecies": "Target Species",
+            "targetValue": "Multiple"
+        },
+        "highlight": {
+            "subtitle": "Research Preview",
+            "text": "Sequence upload, batch prediction and generation. All inference work is done on your computer, and we do not save any information"
+        },
+        "bibtex": {
+            "label": "BibTeX",
+            "copy": "Copy",
+            "copied": "Copied"
+        }
+    },
+    "mic": {
+        "title": "MIC Prediction",
+        "description": "Upload or paste FASTA, select target species, batch predict multiple sequences and export.",
+        "inputLabel": "Input FASTA Sequences",
+        "inputNote": "Supports up to",
+        "uploadLabel": "Upload FASTA File (≤ 1 MB)",
+        "targetTitle": "Target Species (Multiple)",
+        "propertyTitle": "Properties (Multiple)",
+        "submit": "Generate Prediction",
+        "submitting": "Predicting...",
+        "clear": "Clear",
+        "export": "Export CSV",
+        "results": "Prediction Results",
+        "resultsCount": "items",
+        "empty": "No results yet. Upload or paste FASTA to generate",
+        "sequenceLength": "Current input length:",
+        "characters": "characters",
+        "fileTooLarge": "File too large, limit 1 MB",
+        "invalidFasta": "Please paste valid FASTA sequences",
+        "tooManySeqs": "Number of sequences exceeds limit (max {{count}})",
+        "sequence": "Sequence"
+    },
+    "amp": {
+        "title": "AMP Generation",
+        "description": "Specify generation count and target species, return sequences and display predicted strength for each species.",
+        "countLabel": "Generation Count",
+        "targetTitle": "Target Species (Multiple)",
+        "propertyTitle": "Properties (Multiple)",
+        "submit": "Generate Sequences",
+        "submitting": "Generating...",
+        "clear": "Clear",
+        "export": "Export CSV",
+        "results": "Generation Results",
+        "resultsCount": "items",
+        "empty": "No results yet. Set parameters to generate sequences",
+        "strength": "Strength"
+    },
+    "downloads": {
+        "title": "Downloads",
+        "download": "Download",
+        "items": {
+            "weights_v1": {
+                "title": "Model Weights v1.0",
+                "description": "Model parameters for MIC prediction."
+            }
+        }
+    },
+    "species": {
+        "大肠杆菌": "E. coli",
+        "金黄色葡萄球菌": "S. aureus",
+        "肺炎克雷伯菌": "K. pneumoniae",
+        "铜绿假单胞菌": "P. aeruginosa"
+    },
+    "properties": {
+        "分子量": "Molecular Weight",
+        "等电点": "Isoelectric Point",
+        "疏水性": "Hydrophobicity",
+        "净电荷": "Net Charge"
+    },
+    "contact": {
+        "title": "Contact",
+        "description": "Please contact us if you have any questions.",
+        "emailLabel": "Author Email: "
+    }
+}

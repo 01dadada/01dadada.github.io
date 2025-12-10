@@ -1,0 +1,36 @@
+@import '../theme.css';
+
+@layer components {
+    .downloads-page {
+        @apply mx-auto flex flex-col px-4 md:px-6 lg:px-8 py-8 md:py-12;
+    }
+
+    .downloads-grid {
+        @apply grid md:grid-cols-2 lg:grid-cols-3 gap-6;
+    }
+
+    .download-card {
+        @apply relative flex flex-col gap-4 rounded-2xl border border-white/10 bg-gradient-to-br from-white/10 to-white/[0.02] p-6 backdrop-blur-xl transition-all duration-300 hover:border-brand-400/30 hover:bg-white/15 hover:scale-[1.02] hover:shadow-xl hover:shadow-brand-500/10;
+    }
+
+    .download-card::before {
+        content: '';
+        @apply absolute inset-0 rounded-2xl bg-gradient-to-br from-brand-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100;
+    }
+
+    .download-title {
+        @apply relative z-10 text-lg font-bold text-white;
+    }
+
+    .download-desc {
+        @apply relative z-10 text-sm text-slate-300 leading-relaxed flex-1;
+    }
+
+    .download-size {
+        @apply relative z-10 mt-2 inline-block rounded-full bg-slate-800/50 px-3 py-1 text-xs font-medium text-slate-400 border border-white/5;
+    }
+
+    .download-btn {
+        @apply relative z-10 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-500 to-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-500/30 transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-brand-500/40 hover:from-brand-400 hover:to-brand-500;
+    }
+}
