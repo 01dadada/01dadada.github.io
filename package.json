@@ -3,6 +3,7 @@
     "version": "0.1.0",
     "private": true,
     "type": "module",
+    "homepage": "https://01dadada.github.io/",
     "scripts": {
         "dev": "vite",
         "build": "vite build",
@@ -36,6 +37,5 @@
         "tailwindcss": "^4.1.17",
         "typescript": "^5.9.3",
         "vite": "^7.2.7"
-    },
-    "homepage": "./"
+    }
 }
