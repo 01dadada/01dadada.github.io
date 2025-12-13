@@ -34,3 +34,4 @@ public/onnx/Candida_albicans_model.onnx.data filter=lfs diff=lfs merge=lfs -text
 public/onnx/Enterobacter_cloacae_model.onnx filter=lfs diff=lfs merge=lfs -text
 public/onnx/Klebsiella_pneumoniae_model.onnx.data filter=lfs diff=lfs merge=lfs -text
 public/onnx/Staphylococcus_aureus_model.onnx filter=lfs diff=lfs merge=lfs -text
+public/onnx/Pseudomonas_aeruginosa_model.onnx filter=lfs diff=lfs merge=lfs -text

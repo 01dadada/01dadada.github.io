@@ -15,9 +15,11 @@
         "check:gh-pages": "node check-github-pages.js"
     },
     "dependencies": {
+        "@huggingface/transformers": "^3.7.1",
         "clsx": "^2.1.1",
         "i18next": "^25.7.2",
         "lucide-react": "^0.469.0",
+        "onnxruntime-web": "^1.23.2",
         "react": "^18.3.1",
         "react-dom": "^18.3.1",
         "react-hook-form": "^7.53.0",
@@ -37,6 +39,8 @@
         "postcss-import": "^16.1.1",
         "tailwindcss": "^4.1.17",
         "typescript": "^5.9.3",
-        "vite": "^7.2.7"
+        "vite": "^7.2.7",
+        "vite-plugin-node-polyfills": "^0.24.0",
+        "vite-plugin-static-copy": "^3.1.4"
     }
 }
