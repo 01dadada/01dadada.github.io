@@ -1,15 +1,13 @@
-import { Species } from "../types";
-
 export type ModelType = "mic" | "property";
 
 export interface ModelConfig {
-    name: string;  // 内部标识，用于匹配和逻辑判断（保持中文作为 key）
-    nameKey: string;  // i18n key，用于显示，格式如 "properties.分子量"
-    type: ModelType;  // "mic" 表示MIC预测，"property" 表示理化性质预测
+    name: string;
+    nameKey: string;
+    type: ModelType;
     modelUrl: string;
 }
 
-// 所有预测任务的配置（MIC预测 + 理化性质预测）
+
 export const modelConfigs: ModelConfig[] = [
     { name: "分子量", nameKey: "properties.分子量", type: "property", modelUrl: "https://models.example.com/mw", },
     { name: "等电点", nameKey: "properties.等电点", type: "property", modelUrl: "https://models.example.com/pi", },
@@ -17,33 +15,93 @@ export const modelConfigs: ModelConfig[] = [
     { name: "净电荷", nameKey: "properties.净电荷", type: "property", modelUrl: "https://models.example.com/charge", },
 ];
 
-// 为了保持向后兼容，保留原有的 speciesModelConfigs
+
 export interface SpeciesModelConfig {
-    name: Species;  // 内部标识，用于逻辑判断
-    nameKey: string;  // i18n key，用于显示，格式如 "species.大肠杆菌"
+    name: string;
+    nameKey: string;
     modelUrl: string;
 }
 
 export const speciesModelConfigs: SpeciesModelConfig[] = [
     {
-        name: "大肠杆菌",
-        nameKey: "species.大肠杆菌",
-        modelUrl: "https://models.example.com/ecoli-mic",
+        name: "Staphylococcus aureus",
+        nameKey: "species.Staphylococcus_aureus",
+        modelUrl: "/onnx/Staphylococcus_aureus_model.onnx",
     },
     {
-        name: "金黄色葡萄球菌",
-        nameKey: "species.金黄色葡萄球菌",
-        modelUrl: "https://models.example.com/saureus-mic",
+        name: "Escherichia coli",
+        nameKey: "species.Escherichia_coli",
+        modelUrl: "/onnx/Escherichia_coli_model.onnx",
     },
     {
-        name: "肺炎克雷伯菌",
-        nameKey: "species.肺炎克雷伯菌",
-        modelUrl: "https://models.example.com/kpneumoniae-mic",
+        name: "Pseudomonas aeruginosa",
+        nameKey: "species.Pseudomonas_aeruginosa",
+        modelUrl: "/onnx/Pseudomonas_aeruginosa_model.onnx",
     },
     {
-        name: "铜绿假单胞菌",
-        nameKey: "species.铜绿假单胞菌",
-        modelUrl: "https://models.example.com/paeruginosa-mic",
+        name: "Klebsiella pneumoniae",
+        nameKey: "species.Klebsiella_pneumoniae",
+        modelUrl: "/onnx/Klebsiella_pneumoniae_model.onnx",
+    },
+    {
+        name: "Acinetobacter baumannii",
+        nameKey: "species.Acinetobacter_baumannii",
+        modelUrl: "/onnx/Acinetobacter_baumannii_model.onnx",
+    },
+    {
+        name: "Enterococcus faecalis",
+        nameKey: "species.Enterococcus_faecalis",
+        modelUrl: "/onnx/Enterococcus_faecalis_model.onnx",
+    },
+    {
+        name: "Enterococcus faecium",
+        nameKey: "species.Enterococcus_faecium",
+        modelUrl: "/onnx/Enterococcus_faecium_model.onnx",
+    },
+    {
+        name: "Listeria monocytogenes",
+        nameKey: "species.Listeria_monocytogenes",
+        modelUrl: "/onnx/Listeria_monocytogenes_model.onnx",
+    },
+    {
+        name: "Bacillus cereus",
+        nameKey: "species.Bacillus_cereus",
+        modelUrl: "/onnx/Bacillus_cereus_model.onnx",
+    },
+    {
+        name: "Enterobacter cloacae",
+        nameKey: "species.Enterobacter_cloacae",
+        modelUrl: "/onnx/Enterobacter_cloacae_model.onnx",
+    },
+    {
+        name: "Candida albicans",
+        nameKey: "species.Candida_albicans",
+        modelUrl: "/onnx/Candida_albicans_model.onnx",
+    },
+    {
+        name: "Cryptococcus neoformans",
+        nameKey: "species.Cryptococcus_neoformans",
+        modelUrl: "/onnx/Cryptococcus_neoformans_model.onnx",
+    },
+    {
+        name: "Candida tropicalis",
+        nameKey: "species.Candida_tropicalis",
+        modelUrl: "/onnx/Candida_tropicalis_model.onnx",
+    },
+    {
+        name: "Candida parapsilosis",
+        nameKey: "species.Candida_parapsilosis",
+        modelUrl: "/onnx/Candida_parapsilosis_model.onnx",
+    },
+    {
+        name: "Candida glabrata",
+        nameKey: "species.Candida_glabrata",
+        modelUrl: "/onnx/Candida_glabrata_model.onnx",
+    },
+    {
+        name: "Salmonella",
+        nameKey: "species.Salmonella",
+        modelUrl: "/onnx/Salmonella_model.onnx",
     },
 ];
 

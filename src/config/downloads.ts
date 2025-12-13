@@ -11,22 +11,10 @@ export interface DownloadItemConfig {
 
 export const downloadableFiles: DownloadItemConfig[] = [
     {
-        titleKey: "downloads.items.weights_v1.title",
-        descriptionKey: "downloads.items.weights_v1.description",
-        url: "https://example.com/weights-v1.zip",
-        size: "10 MB",
+        titleKey: "downloads.items.acinetobacter_baumannii_model.title",
+        descriptionKey: "downloads.items.acinetobacter_baumannii_model.description",
+        url: "https://github.com/01dadada/01dadada.github.io/raw/refs/heads/master/public/onnx/Acinetobacter_baumannii_model.onnx?download=",
+        size: "44 MB",
     },
-    // {
-    //     titleKey: "downloads.items.dataset.title",
-    //     descriptionKey: "downloads.items.dataset.description",
-    //     url: "https://example.com/dataset.csv",
-    //     size: "8 MB",
-    // },
-    // {
-    //     titleKey: "downloads.items.appendix.title",
-    //     descriptionKey: "downloads.items.appendix.description",
-    //     url: "https://example.com/appendix.zip",
-    //     size: "25 MB",
-    // },
 ];
 
