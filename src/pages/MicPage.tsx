@@ -1,16 +1,17 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { FlaskConical, Upload, Download } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+// @ts-ignore
+import PredFlow from "../workers/pred-flow.js";
 import { SectionCard } from "../components/SectionCard";
 import { MAX_FILE_SIZE, MAX_SEQ_COUNT, speciesOptions } from "../constants";
 import { modelConfigs, speciesModelConfigs } from "../config/speciesModels";
-import { Species } from "../types";
 import { parseFasta } from "../utils/parseFasta";
 
 interface MicForm {
     sequences: string;
-    targets: Species[];
+    targets: string[];
     properties: string[];  // 选中的理化性质名称列表
 }
 
@@ -21,36 +22,130 @@ interface MicResultRow {
     results: { [configName: string]: number };
 }
 
-function predictMIC(sequence: string, modelUrl: string): number {
-    // 模拟基于不同模型的 MIC 预测
-    const seed = sequence.length + modelUrl.length;
-    const base = Math.abs(Math.cos(seed + Date.now())) % 4;
-    return Number(base.toFixed(2));
+// 预测队列：确保同一时间只有一个预测在进行，避免 WebGPU 会话冲突
+class PredictionQueue {
+    private queue: Array<() => Promise<any>> = [];
+    private processing = false;
+
+    async enqueue<T>(task: () => Promise<T>): Promise<T> {
+        return new Promise((resolve, reject) => {
+            this.queue.push(async () => {
+                try {
+                    const result = await task();
+                    resolve(result);
+                } catch (error) {
+                    reject(error);
+                }
+            });
+            this.process();
+        });
+    }
+
+    private async process() {
+        if (this.processing || this.queue.length === 0) {
+            return;
+        }
+        this.processing = true;
+        while (this.queue.length > 0) {
+            const task = this.queue.shift();
+            if (task) {
+                await task();
+            }
+        }
+        this.processing = false;
+    }
 }
 
-function predictProperty(sequence: string, modelUrl: string): number {
-    // 模拟基于不同模型的理化性质预测，传入参数和MIC预测类似
-    const seed = sequence.length + modelUrl.length;
-    // 根据不同理化性质返回不同范围的值
-    if (modelUrl.includes("mw")) {
-        // 分子量：1000-2000 Da
+// 全局预测队列实例
+const predictionQueue = new PredictionQueue();
+
+// 使用 PredFlow 进行真实的 MIC 预测
+async function predictMIC(sequence: string, species: string): Promise<number> {
+    const predFlowRef = (window as any).__predFlowRef = (window as any).__predFlowRef || new PredFlow();
+
+    // 将预测任务加入队列，确保串行执行
+    return await predictionQueue.enqueue(async () => {
+        try {
+            const res = await predFlowRef.predictMicFromSequence(sequence.trim(), species);
+            // console.log(res);
+            return res.mic[0];
+        } catch (err: any) {
+            console.error(`MIC prediction failed for ${species}:`, err);
+            throw new Error(`MIC 预测失败 (${species}): ${err?.message || err}`);
+        }
+    });
+}
+
+// 工厂模式 + 策略模式实现
+// 定义策略接口
+interface PropertyPredictStrategy {
+    predict(sequence: string, modelUrl: string): number;
+}
+
+// 策略实现：分子量
+class MwPredictStrategy implements PropertyPredictStrategy {
+    predict(sequence: string, modelUrl: string): number {
+        const seed = sequence.length + modelUrl.length;
         const base = Math.abs(Math.sin(seed + 1)) % 10000;
         return Number((1000 + base * 0.1).toFixed(2));
-    } else if (modelUrl.includes("pi")) {
-        // 等电点：4.5-5.9
+    }
+}
+
+// 策略实现：等电点
+class PiPredictStrategy implements PropertyPredictStrategy {
+    predict(sequence: string, modelUrl: string): number {
+        const seed = sequence.length + modelUrl.length;
         const base = Math.abs(Math.cos(seed + 2)) % 14;
         return Number((4.5 + base * 0.1).toFixed(2));
-    } else if (modelUrl.includes("hyd")) {
-        // 疏水性：0-1.0
+    }
+}
+
+// 策略实现：疏水性
+class HydPredictStrategy implements PropertyPredictStrategy {
+    predict(sequence: string, modelUrl: string): number {
+        const seed = sequence.length + modelUrl.length;
         const base = Math.abs(Math.sin(seed + 3)) % 2;
         return Number((base * 0.5).toFixed(2));
-    } else if (modelUrl.includes("charge")) {
-        // 净电荷：-10 to 10
+    }
+}
+
+// 策略实现：净电荷
+class ChargePredictStrategy implements PropertyPredictStrategy {
+    predict(sequence: string, modelUrl: string): number {
+        const seed = sequence.length + modelUrl.length;
         const base = Math.abs(Math.cos(seed + 4)) % 20;
         return Number((base - 10).toFixed(2));
     }
-    // 默认值
-    return Number((Math.abs(Math.sin(seed)) % 100).toFixed(2));
+}
+
+// 默认策略
+class DefaultPredictStrategy implements PropertyPredictStrategy {
+    predict(sequence: string, modelUrl: string): number {
+        const seed = sequence.length + modelUrl.length;
+        return Number((Math.abs(Math.sin(seed)) % 100).toFixed(2));
+    }
+}
+
+// 工厂类
+class PropertyPredictFactory {
+    static getStrategy(modelUrl: string): PropertyPredictStrategy {
+        if (modelUrl.includes("mw")) {
+            return new MwPredictStrategy();
+        } else if (modelUrl.includes("pi")) {
+            return new PiPredictStrategy();
+        } else if (modelUrl.includes("hyd")) {
+            return new HydPredictStrategy();
+        } else if (modelUrl.includes("charge")) {
+            return new ChargePredictStrategy();
+        }
+        return new DefaultPredictStrategy();
+    }
+}
+
+// 使用工厂+策略方法
+function predictProperty(sequence: string, modelUrl: string): number {
+    const strategy = PropertyPredictFactory.getStrategy(modelUrl);
+    return strategy.predict(sequence, modelUrl);
 }
 
 export default function MicPage() {
@@ -65,7 +160,7 @@ export default function MicPage() {
     }, []);
 
     // 辅助函数：获取物种的翻译名称
-    const getSpeciesName = (species: Species) => {
+    const getSpeciesName = (species: string) => {
         const config = speciesModelConfigs.find(c => c.name === species);
         return config ? t(config.nameKey) : species;
     };
@@ -82,6 +177,30 @@ export default function MicPage() {
     const sequencesPreview = useMemo(() => micForm.watch("sequences"), [micForm]);
     const watchedTargets = micForm.watch("targets") ?? [];
     const watchedProperties = micForm.watch("properties") ?? [];
+
+    // 初始化并清理 PredFlow 实例
+    useEffect(() => {
+        // 初始化 PredFlow 实例（如果还没有的话）
+        const predFlowRef = (window as any).__predFlowRef = (window as any).__predFlowRef || new PredFlow();
+
+        // 清理函数：在组件卸载或页面关闭时清理
+        const cleanup = () => {
+            if ((window as any).__predFlowRef) {
+                (window as any).__predFlowRef.terminate();
+                delete (window as any).__predFlowRef;
+            }
+        };
+
+        // 监听页面卸载事件
+        if (!(window as any).__predFlowUnloaded) {
+            (window as any).__predFlowUnloaded = true;
+            window.addEventListener("beforeunload", cleanup);
+        }
+
+        // 组件卸载时清理
+        return () => {
+        };
+    }, []);
 
     // 根据选中的理化性质，筛选出相关的配置项
     const selectedPropertyConfigs = useMemo(() => {
@@ -100,34 +219,47 @@ export default function MicPage() {
         }
 
         setLoadingMic(true);
-        await new Promise((r) => setTimeout(r, 400));
 
-        // 为每个序列进行预测：MIC按目标菌计算，理化性质只计算一次（不按目标菌）
-        const results: MicResultRow[] = parsed.map((item, idx) => {
-            const resultsMap: Record<string, number> = {};
+        try {
+            // 为每个序列进行预测：MIC按目标菌计算，理化性质只计算一次（不按目标菌）
+            const results: MicResultRow[] = await Promise.all(
+                parsed.map(async (item, idx) => {
+                    const resultsMap: Record<string, number> = {};
 
-            // MIC预测：对每个选中的目标菌计算
-            watchedTargets.forEach((sp: Species) => {
-                const micConfig = speciesModelConfigs.find(c => c.name === sp);
-                if (micConfig) {
-                    resultsMap[`${sp}-MIC`] = predictMIC(item.seq, micConfig.modelUrl);
-                }
-            });
+                    // MIC预测：对每个选中的目标菌计算
+                    await Promise.all(
+                        watchedTargets.map(async (sp: string) => {
+                            try {
+                                const micValue = await predictMIC(item.seq, sp);
+                                resultsMap[`${sp}-MIC`] = micValue;
+                            } catch (err: any) {
+                                console.error(`Failed to predict MIC for ${sp}:`, err);
+                                // 预测失败时设置为 NaN 或 0，可以在 UI 中显示错误
+                                resultsMap[`${sp}-MIC`] = NaN;
+                            }
+                        })
+                    );
 
-            // 理化性质预测：对每个选中的理化性质计算（不关联目标菌）
-            selectedPropertyConfigs.forEach((config) => {
-                resultsMap[config.name] = predictProperty(item.seq, config.modelUrl);
-            });
+                    // 理化性质预测：对每个选中的理化性质计算（不关联目标菌）
+                    selectedPropertyConfigs.forEach((config) => {
+                        resultsMap[config.name] = predictProperty(item.seq, config.modelUrl);
+                    });
 
-            return {
-                id: item.id || `seq-${idx + 1}`,
-                sequence: item.seq,
-                results: resultsMap,
-            };
-        });
+                    return {
+                        id: item.id || `seq-${idx + 1}`,
+                        sequence: item.seq,
+                        results: resultsMap,
+                    };
+                })
+            );
 
-        setMicResults(results);
-        setLoadingMic(false);
+            setMicResults(results);
+        } catch (err: any) {
+            console.error("MIC prediction error:", err);
+            alert(t("mic.predictionError") + ": " + (err?.message || err));
+        } finally {
+            setLoadingMic(false);
+        }
     }
 
     // 导出为 CSV
@@ -139,7 +271,10 @@ export default function MicPage() {
         const headers = ["ID", ...micHeaders, ...propertyHeaders, "Sequence"];
         let tsv = headers.join(",") + "\n";
         for (const row of micResults) {
-            const micCells = watchedTargets.map(sp => row.results[`${sp}-MIC`]?.toString() ?? "");
+            const micCells = watchedTargets.map(sp => {
+                const value = row.results[`${sp}-MIC`];
+                return value !== undefined && !isNaN(value) ? value.toString() : "N/A";
+            });
             const propertyCells = selectedPropertyConfigs.map(c => row.results[c.name]?.toString() ?? "");
             const cells = [
                 row.id,
@@ -325,7 +460,7 @@ export default function MicPage() {
                                                         const value = row.results[key];
                                                         return (
                                                             <td key={key} className="table-cell mic-score-cell">
-                                                                {value !== undefined ? value.toFixed(2) : ""}
+                                                                {typeof value === 'number' && !isNaN(value) ? value.toFixed(2) : "N/A"}
                                                             </td>
                                                         );
                                                     })}
@@ -333,7 +468,7 @@ export default function MicPage() {
                                                         const value = row.results[config.name];
                                                         return (
                                                             <td key={config.name} className="table-cell mic-score-cell">
-                                                                {value !== undefined ? value.toFixed(2) : ""}
+                                                                {typeof value === 'number' && !isNaN(value) ? value.toFixed(2) : ""}
                                                             </td>
                                                         );
                                                     })}
