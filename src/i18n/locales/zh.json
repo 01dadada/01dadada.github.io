@@ -56,7 +56,7 @@
     },
     "amp": {
         "title": "AMP 生成",
-        "description": "指定生成数量与目标菌，返回序列并展示各菌种预测强度。",
+        "description": "指定生成数量与目标菌，返回序列并展示各菌种预测强度。(此页面功能尚未完成)",
         "countLabel": "生成数量",
         "targetTitle": "目标菌（多选）",
         "propertyTitle": "理化性质（多选）",
@@ -80,10 +80,22 @@
         }
     },
     "species": {
-        "大肠杆菌": "大肠杆菌",
-        "金黄色葡萄球菌": "金黄色葡萄球菌",
-        "肺炎克雷伯菌": "肺炎克雷伯菌",
-        "铜绿假单胞菌": "铜绿假单胞菌"
+        "Staphylococcus_aureus": "金黄色葡萄球菌",
+        "Escherichia_coli": "大肠杆菌",
+        "Pseudomonas_aeruginosa": "铜绿假单胞菌",
+        "Klebsiella_pneumoniae": "肺炎克雷伯菌",
+        "Acinetobacter_baumannii": "鲍曼不动杆菌",
+        "Enterococcus_faecalis": "粪肠球菌",
+        "Enterococcus_faecium": "屎肠球菌",
+        "Listeria_monocytogenes": "单核李斯特菌",
+        "Bacillus_cereus": "蜡样芽孢杆菌",
+        "Enterobacter_cloacae": "阴沟肠杆菌",
+        "Candida_albicans": "白色念珠菌",
+        "Cryptococcus_neoformans": "新型隐球菌",
+        "Candida_tropicalis": "热带念珠菌",
+        "Candida_parapsilosis": "近平滑念珠菌",
+        "Candida_glabrata": "光滑念珠菌",
+        "Salmonella": "沙门氏菌"
     },
     "properties": {
         "分子量": "分子量",

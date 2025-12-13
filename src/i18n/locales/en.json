@@ -56,7 +56,7 @@
     },
     "amp": {
         "title": "AMP Generation",
-        "description": "Specify generation count and target species, return sequences and display predicted strength for each species.",
+        "description": "Specify generation count and target species, return sequences and display predicted strength for each species.(此页面功能尚未完成)",
         "countLabel": "Generation Count",
         "targetTitle": "Target Species (Multiple)",
         "propertyTitle": "Properties (Multiple)",
@@ -73,17 +73,29 @@
         "title": "Downloads",
         "download": "Download",
         "items": {
-            "weights_v1": {
-                "title": "Model Weights v1.0",
-                "description": "Model parameters for MIC prediction."
+            "acinetobacter_baumannii_model": {
+                "title": "Acinetobacter baumannii Model Weights ",
+                "description": "Predict MIC for Acinetobacter baumannii"
             }
         }
     },
     "species": {
-        "大肠杆菌": "E. coli",
-        "金黄色葡萄球菌": "S. aureus",
-        "肺炎克雷伯菌": "K. pneumoniae",
-        "铜绿假单胞菌": "P. aeruginosa"
+        "Staphylococcus_aureus": "Staphylococcus aureus",
+        "Escherichia_coli": "Escherichia coli",
+        "Pseudomonas_aeruginosa": "Pseudomoas aeruginosa",
+        "Klebsiella_pneumoniae": "Klebsiella pneumoniae",
+        "Acinetobacter_baumannii": "Acinetobacter baumannii",
+        "Enterococcus_faecalis": "Enterococcus faecalis",
+        "Enterococcus_faecium": "Enterococcus faecium",
+        "Listeria_monocytogenes": "Listeria monocytogenes",
+        "Bacillus_cereus": "Bacillus cereus",
+        "Enterobacter_cloacae": "Enterobacter cloacae",
+        "Candida_albicans": "Candida albicans",
+        "Cryptococcus_neoformans": "Cryptococcus neoformans",
+        "Candida_tropicalis": "Candida tropicalis",
+        "Candida_parapsilosis": "Candida parapsilosis",
+        "Candida_glabrata": "Candida glabrata",
+        "Salmonella": "Salmonella"
     },
     "properties": {
         "分子量": "Molecular Weight",
