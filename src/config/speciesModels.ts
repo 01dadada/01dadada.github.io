@@ -9,10 +9,17 @@ export interface ModelConfig {
 
 
 export const modelConfigs: ModelConfig[] = [
-    { name: "分子量", nameKey: "properties.分子量", type: "property", modelUrl: "https://models.example.com/mw", },
-    { name: "等电点", nameKey: "properties.等电点", type: "property", modelUrl: "https://models.example.com/pi", },
-    { name: "疏水性", nameKey: "properties.疏水性", type: "property", modelUrl: "https://models.example.com/hyd", },
-    { name: "净电荷", nameKey: "properties.净电荷", type: "property", modelUrl: "https://models.example.com/charge", },
+    { name: "分子量", nameKey: "properties.molecular_weight", type: "property", modelUrl: "https://models.example.com/mw", },
+    { name: "等电点", nameKey: "properties.isoelectric_point", type: "property", modelUrl: "https://models.example.com/pi", },
+    { name: "疏水性", nameKey: "properties.hydrophobicity", type: "property", modelUrl: "https://models.example.com/hyd", },
+    { name: "净电荷", nameKey: "properties.net_charge", type: "property", modelUrl: "https://models.example.com/charge", },
+    { name: "不稳定性指数", nameKey: "properties.instability_index", type: "property", modelUrl: "https://models.example.com/instability", },
+    { name: "芳香性", nameKey: "properties.aromaticity", type: "property", modelUrl: "https://models.example.com/aromaticity", },
+    { name: "灵活性", nameKey: "properties.flexibility", type: "property", modelUrl: "https://models.example.com/flexibility", },
+    { name: "螺旋结构", nameKey: "properties.helix", type: "property", modelUrl: "https://models.example.com/secondary_helix", },
+    { name: "转角结构", nameKey: "properties.turn", type: "property", modelUrl: "https://models.example.com/secondary_turn", },
+    { name: "折叠结构", nameKey: "properties.sheet", type: "property", modelUrl: "https://models.example.com/secondary_sheet", },
+    { name: "摩尔消光系数", nameKey: "properties.molar_extinction", type: "property", modelUrl: "https://models.example.com/extinction", },
 ];
 
 

@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 // @ts-ignore
 import PredFlow from "../workers/pred-flow.js";
+import { predictProperty } from "../workers/prop-works";
 import { SectionCard } from "../components/SectionCard";
 import { MAX_FILE_SIZE, MAX_SEQ_COUNT, speciesOptions } from "../constants";
 import { modelConfigs, speciesModelConfigs } from "../config/speciesModels";
@@ -56,96 +57,29 @@ class PredictionQueue {
     }
 }
 
-// 全局预测队列实例
 const predictionQueue = new PredictionQueue();
 
-// 使用 PredFlow 进行真实的 MIC 预测
-async function predictMIC(sequence: string, species: string): Promise<number> {
+async function predictMICForMultipleSpecies(sequence: string, speciesList: string[]): Promise<Record<string, number>> {
     const predFlowRef = (window as any).__predFlowRef = (window as any).__predFlowRef || new PredFlow();
 
-    // 将预测任务加入队列，确保串行执行
     return await predictionQueue.enqueue(async () => {
         try {
-            const res = await predFlowRef.predictMicFromSequence(sequence.trim(), species);
-            // console.log(res);
-            return res.mic[0];
+            const res = await predFlowRef.predictMicFromSequenceForMultipleSpecies(sequence.trim(), speciesList);
+            const result: Record<string, number> = {};
+            for (const species of speciesList) {
+                if (res.results[species] && res.results[species] !== null) {
+                    const micValue = res.results[species].mic[0]
+                    result[species] = micValue;
+                } else {
+                    result[species] = NaN;
+                }
+            }
+            return result;
         } catch (err: any) {
-            console.error(`MIC prediction failed for ${species}:`, err);
-            throw new Error(`MIC 预测失败 (${species}): ${err?.message || err}`);
+            console.error(`MIC prediction failed for species:`, err);
+            throw new Error(`MIC 预测失败: ${err?.message || err}`);
         }
     });
-}
-
-// 工厂模式 + 策略模式实现
-// 定义策略接口
-interface PropertyPredictStrategy {
-    predict(sequence: string, modelUrl: string): number;
-}
-
-// 策略实现：分子量
-class MwPredictStrategy implements PropertyPredictStrategy {
-    predict(sequence: string, modelUrl: string): number {
-        const seed = sequence.length + modelUrl.length;
-        const base = Math.abs(Math.sin(seed + 1)) % 10000;
-        return Number((1000 + base * 0.1).toFixed(2));
-    }
-}
-
-// 策略实现：等电点
-class PiPredictStrategy implements PropertyPredictStrategy {
-    predict(sequence: string, modelUrl: string): number {
-        const seed = sequence.length + modelUrl.length;
-        const base = Math.abs(Math.cos(seed + 2)) % 14;
-        return Number((4.5 + base * 0.1).toFixed(2));
-    }
-}
-
-// 策略实现：疏水性
-class HydPredictStrategy implements PropertyPredictStrategy {
-    predict(sequence: string, modelUrl: string): number {
-        const seed = sequence.length + modelUrl.length;
-        const base = Math.abs(Math.sin(seed + 3)) % 2;
-        return Number((base * 0.5).toFixed(2));
-    }
-}
-
-// 策略实现：净电荷
-class ChargePredictStrategy implements PropertyPredictStrategy {
-    predict(sequence: string, modelUrl: string): number {
-        const seed = sequence.length + modelUrl.length;
-        const base = Math.abs(Math.cos(seed + 4)) % 20;
-        return Number((base - 10).toFixed(2));
-    }
-}
-
-// 默认策略
-class DefaultPredictStrategy implements PropertyPredictStrategy {
-    predict(sequence: string, modelUrl: string): number {
-        const seed = sequence.length + modelUrl.length;
-        return Number((Math.abs(Math.sin(seed)) % 100).toFixed(2));
-    }
-}
-
-// 工厂类
-class PropertyPredictFactory {
-    static getStrategy(modelUrl: string): PropertyPredictStrategy {
-        if (modelUrl.includes("mw")) {
-            return new MwPredictStrategy();
-        } else if (modelUrl.includes("pi")) {
-            return new PiPredictStrategy();
-        } else if (modelUrl.includes("hyd")) {
-            return new HydPredictStrategy();
-        } else if (modelUrl.includes("charge")) {
-            return new ChargePredictStrategy();
-        }
-        return new DefaultPredictStrategy();
-    }
-}
-
-// 使用工厂+策略方法
-function predictProperty(sequence: string, modelUrl: string): number {
-    const strategy = PropertyPredictFactory.getStrategy(modelUrl);
-    return strategy.predict(sequence, modelUrl);
 }
 
 export default function MicPage() {
@@ -169,8 +103,8 @@ export default function MicPage() {
     const micForm = useForm<MicForm>({
         defaultValues: {
             sequences: "",
-            targets: [speciesOptions[0]],
-            properties: modelConfigs.filter(c => c.type === "property").map(c => c.name),  // 默认全选理化性质
+            targets: [],
+            properties: [],
         },
     });
 
@@ -221,24 +155,23 @@ export default function MicPage() {
         setLoadingMic(true);
 
         try {
-            // 为每个序列进行预测：MIC按目标菌计算，理化性质只计算一次（不按目标菌）
+            // 为每个序列进行预测：MIC按目标菌计算（使用批量预测方法，只计算一次嵌入），理化性质只计算一次（不按目标菌）
             const results: MicResultRow[] = await Promise.all(
                 parsed.map(async (item, idx) => {
                     const resultsMap: Record<string, number> = {};
-
-                    // MIC预测：对每个选中的目标菌计算
-                    await Promise.all(
-                        watchedTargets.map(async (sp: string) => {
-                            try {
-                                const micValue = await predictMIC(item.seq, sp);
-                                resultsMap[`${sp}-MIC`] = micValue;
-                            } catch (err: any) {
-                                console.error(`Failed to predict MIC for ${sp}:`, err);
-                                // 预测失败时设置为 NaN 或 0，可以在 UI 中显示错误
-                                resultsMap[`${sp}-MIC`] = NaN;
+                    if (watchedTargets.length > 0) {
+                        try {
+                            const micResults = await predictMICForMultipleSpecies(item.seq, watchedTargets);
+                            for (const sp of watchedTargets) {
+                                resultsMap[`${sp}-MIC`] = micResults[sp] ?? NaN;
                             }
-                        })
-                    );
+                        } catch (err: any) {
+                            console.error(`Failed to predict MIC for sequence ${idx + 1}:`, err);
+                            watchedTargets.forEach((sp: string) => {
+                                resultsMap[`${sp}-MIC`] = NaN;
+                            });
+                        }
+                    }
 
                     // 理化性质预测：对每个选中的理化性质计算（不关联目标菌）
                     selectedPropertyConfigs.forEach((config) => {

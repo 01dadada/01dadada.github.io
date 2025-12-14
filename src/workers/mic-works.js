@@ -56,9 +56,7 @@ class MicPredictPipeline {
     }
 
     static async predictEmbedding({ embedding, modelUrl, device = "webgpu" }) {
-        // console.log("device:", device);
         const { session, ort } = await this.getSession(modelUrl);
-        console.log("ort:", ort);
         let inputArray;
         if (embedding instanceof Float32Array) {
             inputArray = embedding;

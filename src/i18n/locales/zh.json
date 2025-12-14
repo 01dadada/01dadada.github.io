@@ -98,10 +98,17 @@
         "Salmonella": "沙门氏菌"
     },
     "properties": {
-        "分子量": "分子量",
-        "等电点": "等电点",
-        "疏水性": "疏水性",
-        "净电荷": "净电荷"
+        "molecular_weight": "分子量",
+        "isoelectric_point": "等电点",
+        "hydrophobicity": "疏水性",
+        "net_charge": "净电荷",
+        "instability_index": "不稳定性指数",
+        "aromaticity": "芳香性",
+        "flexibility": "灵活性",
+        "helix": "螺旋结构",
+        "turn": "转角结构",
+        "sheet": "折叠结构",
+        "molar_extinction": "摩尔消光系数"
     },
     "contact": {
         "title": "联系",

@@ -98,10 +98,17 @@
         "Salmonella": "Salmonella"
     },
     "properties": {
-        "分子量": "Molecular Weight",
-        "等电点": "Isoelectric Point",
-        "疏水性": "Hydrophobicity",
-        "净电荷": "Net Charge"
+        "molecular_weight": "Molecular Weight",
+        "isoelectric_point": "Isoelectric Point",
+        "hydrophobicity": "Hydrophobicity",
+        "net_charge": "Net Charge",
+        "instability_index": "Instability Index",
+        "aromaticity": "Aromaticity",
+        "flexibility": "Flexibility",
+        "helix": "Helix",
+        "turn": "Turn",
+        "sheet": "Sheet",
+        "molar_extinction": "Molar Extinction Coefficient"
     },
     "contact": {
         "title": "Contact",

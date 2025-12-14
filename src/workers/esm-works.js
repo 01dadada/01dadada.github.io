@@ -3,10 +3,6 @@ import { AutoTokenizer, AutoModel, AutoConfig, env } from "@huggingface/transfor
 // 使用GPU后端
 env.backends.use = "webgpu";
 
-/**
- * 蛋白质嵌入管道类
- * 使用单例模式确保只加载一次模型
- */
 class ProteinEmbeddingPipeline {
     static model = "Xue-Jun/esm2-8M";
     static instance = null;
@@ -21,13 +17,12 @@ class ProteinEmbeddingPipeline {
             this.tokenizer = await AutoTokenizer.from_pretrained(this.model, {
                 progress_callback,
             });
-            // 强制加载非量化模型，指定device为"webgpu"
             this.instance = await AutoModel.from_pretrained(this.model, {
                 config: this.config,
                 quantized: false,
                 progress_callback,
-                device: "webgpu", // 明确指定在GPU上推理
-                dtype: "fp32", // 明确指定数据类型，避免警告
+                device: "webgpu",
+                dtype: "fp32",
             });
         }
         return {
@@ -37,13 +32,10 @@ class ProteinEmbeddingPipeline {
     }
 }
 
-// 监听来自主线程的消息
 self.addEventListener("message", async (event) => {
     try {
-        // 获取蛋白质嵌入管道
         const { model, tokenizer } = await ProteinEmbeddingPipeline.getInstance(
             (progress) => {
-                // 发送进度更新
                 self.postMessage(progress);
             }
         );
@@ -68,7 +60,6 @@ self.addEventListener("message", async (event) => {
             sequence: sequence,
         });
     } catch (error) {
-        // 发送错误消息
         self.postMessage({
             status: "error",
             error: error.message,
