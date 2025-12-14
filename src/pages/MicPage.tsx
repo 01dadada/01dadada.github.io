@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { FlaskConical, Upload, Download } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import PredFlow from "../workers/pred-flow.js";
 import { predictProperty } from "../workers/prop-works";
 import { SectionCard } from "../components/SectionCard";
+import { ModelLoadingModal } from "../components/ModelLoadingModal";
 import { MAX_FILE_SIZE, MAX_SEQ_COUNT, speciesOptions } from "../constants";
 import { modelConfigs, speciesModelConfigs } from "../config/speciesModels";
 import { parseFasta } from "../utils/parseFasta";
@@ -87,6 +88,21 @@ export default function MicPage() {
     // 用页面变量保存（而不是 species 存 micResults 里的每行 species），micResults 为所有序列、每个目标菌对应分数
     const [micResults, setMicResults] = useState<MicResultRow[]>([]);
     const [loadingMic, setLoadingMic] = useState(false);
+    const [progress, setProgress] = useState({ current: 0, total: 0, estimatedTimeRemaining: 0 });
+    const processingTimesRef = useRef<number[]>([]);
+    const startTimeRef = useRef<number>(0);
+    const modelDownloadedRef = useRef<boolean>(false); // 标记模型是否已下载过
+
+    // 模型加载/下载弹窗状态
+    const [modelLoadingModal, setModelLoadingModal] = useState({
+        isOpen: false,
+        title: "",
+        message: "",
+        progress: 0,
+        showProgress: false,
+        isComplete: false, // 是否显示完成状态
+        type: "loading" as "loading" | "downloading", // loading: transformers.js加载, downloading: onnx下载
+    });
 
     // 获取所有理化性质配置项
     const propertyConfigs = useMemo(() => {
@@ -117,6 +133,86 @@ export default function MicPage() {
         // 初始化 PredFlow 实例（如果还没有的话）
         const predFlowRef = (window as any).__predFlowRef = (window as any).__predFlowRef || new PredFlow();
 
+        // 设置下载状态回调
+        predFlowRef.setDownloadCallback((status: string) => {
+            if (status === "start") {
+                // 开始加载ESM模型（每次都需要弹窗）
+                setModelLoadingModal({
+                    isOpen: true,
+                    title: t("mic.modelLoadingTitle"),
+                    message: t("mic.modelLoadingMessage"),
+                    progress: 0,
+                    showProgress: false, // 不显示进度条
+                    isComplete: false,
+                    type: "loading",
+                });
+            } else if (status === "complete") {
+                // ESM模型加载完成
+                if (!modelDownloadedRef.current) {
+                    modelDownloadedRef.current = true;
+                }
+                // 先关闭加载弹窗
+                setModelLoadingModal(prev => ({ ...prev, isOpen: false }));
+                // 然后显示完成通知
+                setTimeout(() => {
+                    setModelLoadingModal({
+                        isOpen: true,
+                        title: t("mic.modelLoadingCompleteTitle"),
+                        message: t("mic.modelLoadingCompleteMessage"),
+                        progress: 100,
+                        showProgress: false,
+                        isComplete: true,
+                        type: "loading",
+                    });
+                }, 100);
+            }
+        });
+
+        // 设置进度回调
+        predFlowRef.setProgressCallback((progressData: any) => {
+            if (progressData.type === "esm_progress") {
+                // transformers.js加载进度（不更新进度条，因为showProgress为false）
+                // 这里可以保留逻辑，但不会显示进度条
+            } else if (progressData.type === "onnx_download") {
+                // ONNX模型下载进度
+                const msg = progressData.data;
+                if (msg.status === "download_start") {
+                    // ONNX模型开始下载
+                    setModelLoadingModal({
+                        isOpen: true,
+                        title: t("mic.modelDownloadTitle"),
+                        message: t("mic.modelDownloadMessage", { modelUrl: msg.modelUrl }),
+                        progress: 0,
+                        showProgress: true,
+                        isComplete: false,
+                        type: "downloading",
+                    });
+                } else if (msg.status === "download_progress") {
+                    // ONNX模型下载进度
+                    setModelLoadingModal(prev => ({
+                        ...prev,
+                        progress: msg.progress !== undefined ? msg.progress : 0,
+                    }));
+                } else if (msg.status === "download_complete") {
+                    // ONNX模型下载完成
+                    // 先关闭进度弹窗
+                    setModelLoadingModal(prev => ({ ...prev, isOpen: false }));
+                    // 然后显示完成通知
+                    setTimeout(() => {
+                        setModelLoadingModal({
+                            isOpen: true,
+                            title: t("mic.modelDownloadCompleteTitle"),
+                            message: t("mic.modelDownloadCompleteMessage"),
+                            progress: 100,
+                            showProgress: false,
+                            isComplete: true,
+                            type: "downloading",
+                        });
+                    }, 100);
+                }
+            }
+        });
+
         // 清理函数：在组件卸载或页面关闭时清理
         const cleanup = () => {
             if ((window as any).__predFlowRef) {
@@ -134,12 +230,33 @@ export default function MicPage() {
         // 组件卸载时清理
         return () => {
         };
-    }, []);
+    }, [t]);
 
     // 根据选中的理化性质，筛选出相关的配置项
     const selectedPropertyConfigs = useMemo(() => {
         return propertyConfigs.filter(c => watchedProperties.includes(c.name));
     }, [watchedProperties, propertyConfigs]);
+
+    // 格式化剩余时间
+    const formatTimeRemaining = (seconds: number): string => {
+        if (seconds < 60) {
+            return `${Math.ceil(seconds)}${t("mic.seconds")}`;
+        } else if (seconds < 3600) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.ceil(seconds % 60);
+            if (secs > 0) {
+                return `${minutes}${t("mic.minutes")} ${secs}${t("mic.seconds")}`;
+            }
+            return `${minutes}${t("mic.minutes")}`;
+        } else {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            if (minutes > 0) {
+                return `${hours}${t("mic.hours")} ${minutes}${t("mic.minutes")}`;
+            }
+            return `${hours}${t("mic.hours")}`;
+        }
+    };
 
     async function handleMicSubmit(values: MicForm) {
         const parsed = parseFasta(values.sequences);
@@ -153,38 +270,62 @@ export default function MicPage() {
         }
 
         setLoadingMic(true);
+        setProgress({ current: 0, total: parsed.length, estimatedTimeRemaining: 0 });
+        processingTimesRef.current = [];
+        startTimeRef.current = Date.now();
 
         try {
-            // 为每个序列进行预测：MIC按目标菌计算（使用批量预测方法，只计算一次嵌入），理化性质只计算一次（不按目标菌）
-            const results: MicResultRow[] = await Promise.all(
-                parsed.map(async (item, idx) => {
-                    const resultsMap: Record<string, number> = {};
-                    if (watchedTargets.length > 0) {
-                        try {
-                            const micResults = await predictMICForMultipleSpecies(item.seq, watchedTargets);
-                            for (const sp of watchedTargets) {
-                                resultsMap[`${sp}-MIC`] = micResults[sp] ?? NaN;
-                            }
-                        } catch (err: any) {
-                            console.error(`Failed to predict MIC for sequence ${idx + 1}:`, err);
-                            watchedTargets.forEach((sp: string) => {
-                                resultsMap[`${sp}-MIC`] = NaN;
-                            });
+            // 为每个序列进行预测：改为顺序处理以支持进度更新
+            const results: MicResultRow[] = [];
+
+            for (let idx = 0; idx < parsed.length; idx++) {
+                const item = parsed[idx];
+                const sequenceStartTime = Date.now();
+                const resultsMap: Record<string, number> = {};
+
+                if (watchedTargets.length > 0) {
+                    try {
+                        const micResults = await predictMICForMultipleSpecies(item.seq, watchedTargets);
+                        for (const sp of watchedTargets) {
+                            resultsMap[`${sp}-MIC`] = micResults[sp] ?? NaN;
                         }
+                    } catch (err: any) {
+                        console.error(`Failed to predict MIC for sequence ${idx + 1}:`, err);
+                        watchedTargets.forEach((sp: string) => {
+                            resultsMap[`${sp}-MIC`] = NaN;
+                        });
                     }
+                }
 
-                    // 理化性质预测：对每个选中的理化性质计算（不关联目标菌）
-                    selectedPropertyConfigs.forEach((config) => {
-                        resultsMap[config.name] = predictProperty(item.seq, config.modelUrl);
-                    });
+                // 理化性质预测：对每个选中的理化性质计算（不关联目标菌）
+                selectedPropertyConfigs.forEach((config) => {
+                    resultsMap[config.name] = predictProperty(item.seq, config.modelUrl);
+                });
 
-                    return {
-                        id: item.id || `seq-${idx + 1}`,
-                        sequence: item.seq,
-                        results: resultsMap,
-                    };
-                })
-            );
+                results.push({
+                    id: item.id || `seq-${idx + 1}`,
+                    sequence: item.seq,
+                    results: resultsMap,
+                });
+
+                // 记录处理时间
+                const sequenceTime = (Date.now() - sequenceStartTime) / 1000; // 转换为秒
+                processingTimesRef.current.push(sequenceTime);
+
+                // 计算平均处理时间和剩余时间
+                const avgTime = processingTimesRef.current.reduce((a, b) => a + b, 0) / processingTimesRef.current.length;
+                const remaining = parsed.length - (idx + 1);
+                const estimatedTimeRemaining = avgTime * remaining;
+
+                // 更新进度
+                setProgress({
+                    current: idx + 1,
+                    total: parsed.length,
+                    estimatedTimeRemaining: estimatedTimeRemaining
+                });
+                // 更新结果，让用户看到部分结果
+                setMicResults([...results]);
+            }
 
             setMicResults(results);
         } catch (err: any) {
@@ -192,6 +333,7 @@ export default function MicPage() {
             alert(t("mic.predictionError") + ": " + (err?.message || err));
         } finally {
             setLoadingMic(false);
+            setProgress({ current: 0, total: 0, estimatedTimeRemaining: 0 });
         }
     }
 
@@ -331,6 +473,30 @@ export default function MicPage() {
                                 </div>
                             </div>
                         </div>
+                        {loadingMic && progress.total > 0 && (
+                            <div className="mic-progress-container">
+                                <div className="mic-progress-header">
+                                    <span className="mic-progress-text">
+                                        {t("mic.progress")} {progress.current} / {progress.total}
+                                    </span>
+                                    <span className="mic-progress-percent">
+                                        {Math.round((progress.current / progress.total) * 100)}%
+                                    </span>
+                                </div>
+                                <div className="mic-progress-bar">
+                                    <div
+                                        className="mic-progress-fill"
+                                        style={{ width: `${(progress.current / progress.total) * 100}%` }}
+                                    />
+                                </div>
+                                {progress.current > 0 && progress.current < progress.total && (
+                                    <div className="mic-progress-time">
+                                        <span className="mic-progress-time-label">{t("mic.estimatedTimeRemaining")}:</span>
+                                        <span className="mic-progress-time-value">{formatTimeRemaining(progress.estimatedTimeRemaining)}</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         <div className="mic-action-row">
                             <button
                                 type="submit"
@@ -430,6 +596,18 @@ export default function MicPage() {
                     </div>
                 </form>
             </SectionCard>
+
+            {/* 模型加载/下载弹窗 */}
+            <ModelLoadingModal
+                isOpen={modelLoadingModal.isOpen}
+                title={modelLoadingModal.title}
+                message={modelLoadingModal.message}
+                progress={modelLoadingModal.progress}
+                showProgress={modelLoadingModal.showProgress}
+                isComplete={modelLoadingModal.isComplete}
+                onClose={() => setModelLoadingModal(prev => ({ ...prev, isOpen: false }))}
+                autoCloseDelay={2000}
+            />
         </div>
     );
 }
