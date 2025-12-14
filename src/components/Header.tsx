@@ -24,7 +24,7 @@ export function Header() {
                 <div className="group relative flex h-10 w-10 md:h-11 md:w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500/30 to-brand-600/20 text-brand-200 shadow-lg shadow-brand-500/20 transition-all hover:scale-105 hover:shadow-brand-500/30">
                     <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-brand-400/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
                     <img
-                        src="/logo.svg"
+                        src="./logo.svg"
                         alt="AMP-MIC Logo"
                         className="relative h-7 w-7 md:h-8 md:w-8"
                         draggable={false}

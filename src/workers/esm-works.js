@@ -41,10 +41,6 @@ self.addEventListener("message", async (event) => {
         );
 
         const sequence = event.data.sequence;
-        self.postMessage({
-            status: "computing",
-            message: "正在计算蛋白质嵌入...",
-        });
         const inputs = await tokenizer(sequence, {
             padding: false,
             truncation: true,

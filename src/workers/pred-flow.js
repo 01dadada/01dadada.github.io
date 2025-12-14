@@ -321,8 +321,8 @@ class PredFlow {
                     });
                 });
                 results[targetSpecies] = {
-                    mic: micResult.mic,
-                    rawMic: micResult.outputRaw,
+                    mic: Math.pow(2, micResult.mic[0]) - 1,
+                    rawMic: micResult.outputRaw[0],
                 };
             } catch (error) {
                 console.error(`预测 ${targetSpecies} 失败:`, error);

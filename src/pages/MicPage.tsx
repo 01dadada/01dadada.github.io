@@ -69,7 +69,7 @@ async function predictMICForMultipleSpecies(sequence: string, speciesList: strin
             const result: Record<string, number> = {};
             for (const species of speciesList) {
                 if (res.results[species] && res.results[species] !== null) {
-                    const micValue = res.results[species].mic[0]
+                    const micValue = res.results[species].mic
                     result[species] = micValue;
                 } else {
                     result[species] = NaN;
@@ -154,17 +154,17 @@ export default function MicPage() {
                 // 先关闭加载弹窗
                 setModelLoadingModal(prev => ({ ...prev, isOpen: false }));
                 // 然后显示完成通知
-                setTimeout(() => {
-                    setModelLoadingModal({
-                        isOpen: true,
-                        title: t("mic.modelLoadingCompleteTitle"),
-                        message: t("mic.modelLoadingCompleteMessage"),
-                        progress: 100,
-                        showProgress: false,
-                        isComplete: true,
-                        type: "loading",
-                    });
-                }, 100);
+                // setTimeout(() => {
+                //     setModelLoadingModal({
+                //         isOpen: true,
+                //         title: t("mic.modelLoadingCompleteTitle"),
+                //         message: t("mic.modelLoadingCompleteMessage"),
+                //         progress: 100,
+                //         showProgress: false,
+                //         isComplete: true,
+                //         type: "loading",
+                //     });
+                // }, 100);
             }
         });
 
