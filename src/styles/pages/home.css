@@ -121,7 +121,7 @@
     }
 
     .home-highlight-grid {
-        @apply relative z-10 grid lg:grid-cols-2 gap-8 lg:gap-12;
+        @apply relative z-10 flex flex-col gap-8 lg:gap-12;
     }
 
     .home-highlight-copy {
@@ -136,12 +136,16 @@
         @apply max-w-xl text-lg md:text-xl text-slate-200 leading-relaxed;
     }
 
+    .home-highlight-bottom {
+        @apply flex flex-col lg:flex-row gap-4 lg:items-start;
+    }
+
     .home-highlight-links {
-        @apply mt-5 flex flex-wrap gap-4;
+        @apply flex flex-col gap-4 rounded-lg p-4 items-center justify-center;
     }
 
     .home-link {
-        @apply inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1 text-lg font-normal text-brand-100 backdrop-blur-sm transition-all duration-200 hover:border-brand-300/50 hover:bg-white/20 hover:scale-105 hover:text-white m-2;
+        @apply inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-1 text-lg font-normal text-brand-100 backdrop-blur-sm transition-all duration-200 hover:border-brand-300/50 hover:bg-white/20 hover:scale-105 hover:text-white;
     }
 
     .home-link svg {
@@ -149,7 +153,7 @@
     }
 
     .home-bibtex-card {
-        @apply relative rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/90 to-slate-950/90 p-6 shadow-2xl backdrop-blur-xl;
+        @apply relative flex-1 rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/90 to-slate-950/90 p-6 shadow-2xl backdrop-blur-xl;
     }
 
     .home-bibtex-header {

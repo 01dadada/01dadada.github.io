@@ -24,7 +24,7 @@
         },
         "highlight": {
             "subtitle": "Research Preview",
-            "text": "序列上传、批量预测与生成。所有的推理工作都在您的电脑上完成，我们不会保存任何信息"
+            "text": "本系统的预测值都为log(MIC)，这仅仅是一个预测值，并不代表真实的实验数据"
         },
         "bibtex": {
             "label": "BibTeX",
