@@ -56,81 +56,83 @@ async function cacheModel(modelUrl, arrayBuffer) {
     });
 }
 
-// 从网络下载模型
-async function downloadModelArrayBuffer(modelUrl, progressCb) {
-    const response = await fetch(modelUrl);
-    if (!response.ok) {
-        throw new Error(`Failed to download model ${modelUrl}: ${response.statusText}`);
+function validateOnnxBuffer(buffer) {
+    const size = buffer.byteLength;
+
+    // 1️⃣ 大小下限（根据你模型调，5–10MB 很常见）
+    if (size < 1024 * 1024) {
+        throw new Error(`ONNX file too small (${size} bytes)`);
     }
 
-    const contentLength = response.headers.get('content-length');
-    const total = contentLength ? parseInt(contentLength, 10) : 0;
+    // 2️⃣ 防 HTML / JSON / 文本
+    const head = new Uint8Array(buffer.slice(0, 16));
+    const isText = head.every(b => b >= 9 && b <= 126);
+    if (isText) {
+        const text = new TextDecoder().decode(head);
+        throw new Error(`Downloaded file looks like text: ${text}`);
+    }
+}
+
+async function downloadModelArrayBuffer(modelUrl, progressCb) {
+    const response = await fetch(modelUrl, {
+        cache: "no-store",
+        headers: {
+            "Accept": "application/octet-stream",
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to download model ${modelUrl}: ${response.status}`);
+    }
+
+    const contentLength = response.headers.get("content-length");
+    const total = contentLength ? parseInt(contentLength, 10) : null;
 
     if (!response.body) {
-        throw new Error('Response body is null');
+        throw new Error("Response body is null");
     }
 
     const reader = response.body.getReader();
     const chunks = [];
     let receivedLength = 0;
 
-    // 发送下载开始消息
-    if (progressCb) {
-        self.postMessage({
-            status: "download_start",
-            modelUrl: modelUrl,
-        });
-    }
+    progressCb && self.postMessage({ status: "download_start", modelUrl, total });
 
     while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
         chunks.push(value);
-        receivedLength += value.length;
+        receivedLength += value.byteLength;
 
-        // 发送下载进度
-        if (progressCb) {
-            if (total > 0) {
-                const progress = (receivedLength / total) * 100;
-                self.postMessage({
-                    status: "download_progress",
-                    modelUrl: modelUrl,
-                    progress: progress,
-                    received: receivedLength,
-                    total: total,
-                });
-            } else {
-                // 如果没有content-length，发送不确定的进度（显示加载动画）
-                self.postMessage({
-                    status: "download_progress",
-                    modelUrl: modelUrl,
-                    progress: -1, // -1表示不确定进度
-                    received: receivedLength,
-                    total: 0,
-                });
-            }
-        }
-    }
-
-    // 合并所有chunks
-    const chunksAll = new Uint8Array(receivedLength);
-    let position = 0;
-    for (const chunk of chunks) {
-        chunksAll.set(chunk, position);
-        position += chunk.length;
-    }
-
-    // 发送下载完成消息
-    if (progressCb) {
-        self.postMessage({
-            status: "download_complete",
-            modelUrl: modelUrl,
+        progressCb && self.postMessage({
+            status: "download_progress",
+            modelUrl,
+            received: receivedLength,
+            total,
+            progress: total ? receivedLength / total * 100 : -1,
         });
     }
 
-    return chunksAll.buffer;
+    const buffer = new Uint8Array(receivedLength);
+    let offset = 0;
+    for (const chunk of chunks) {
+        buffer.set(chunk, offset);
+        offset += chunk.byteLength;
+    }
+
+    // 🔥 关键：校验
+    validateOnnxBuffer(buffer.buffer);
+
+    progressCb && self.postMessage({
+        status: "download_complete",
+        modelUrl,
+        size: receivedLength,
+    });
+
+    return buffer.buffer;
 }
+
 
 class MicPredictPipeline {
     static modelSessions = {};
@@ -168,8 +170,9 @@ class MicPredictPipeline {
             let modelBuffer = await getCachedModel(modelUrl);
             if (!modelBuffer) {
                 // 下载模型并缓存（传递进度回调）
-                modelBuffer = await downloadModelArrayBuffer(modelUrl, true);
                 console.log("下载模型并缓存", modelUrl);
+                modelBuffer = await downloadModelArrayBuffer(modelUrl, true);
+                console.log("下载模型并缓存完成", modelUrl);
                 await cacheModel(modelUrl, modelBuffer);
                 console.log("缓存模型", modelUrl);
             }
